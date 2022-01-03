@@ -24,6 +24,7 @@ impl Renderer {
         // create a window.
         let mut win = video_subsystem.window(title, 1280, 720);
         let window = win.position_centered()
+                        .resizable()
                         .build()
                         .unwrap();
 
@@ -258,7 +259,6 @@ fn main() {
                             solve_astar(node_start_mut_ptr, node_end_ptr);
                         },
 
-
                         _ => {},
                     }
                 },
@@ -284,7 +284,7 @@ fn main() {
                 core.ekran.set_draw_color((0, 0, 255));
             } else if anode.visited {
                 core.ekran.set_draw_color((125, 0, 0));
-            }else {
+            } else {
                 core.ekran.set_draw_color((255, 0, 0));
             }
             core.ekran.fill_rect(*rect).unwrap();
