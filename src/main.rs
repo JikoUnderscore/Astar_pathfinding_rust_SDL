@@ -213,6 +213,7 @@ fn main() {
     let mut node_end_ptr: *const _ = &nodes_list[17 * MAP_WIDHT + 10];
 
     let mut is_running = true;
+    let mut path_point_list = vec![];
 
 //--------- LOOP
     while is_running {
@@ -256,6 +257,24 @@ fn main() {
                             }
 
                             solve_astar(node_start_mut_ptr, node_end_ptr);
+
+
+                            path_point_list.clear();
+
+                            let mut p: _ = Some(node_end_ptr);
+
+                            while let Some(pa) = p {
+                                unsafe {
+                                    // if let Some(papa) = (*pa).parent {
+                                    //     path_point_list.push(((*pa).point, (*papa).point));
+                                    // }
+                                    path_point_list.push((*pa).point);
+
+
+                                    p = (*pa).parent;
+                                }
+                            }
+
                         },
 
 
@@ -289,7 +308,7 @@ fn main() {
             }
             core.ekran.fill_rect(*rect).unwrap();
         }
-
+/*
         {
             let mut p: _ = Some(node_end_ptr);
             core.ekran.set_draw_color((255, 255, 255));
@@ -302,6 +321,19 @@ fn main() {
 
                     p = (*pa).parent;
                 }
+            }
+        }
+*/
+        // core.ekran.set_draw_color((255, 255, 255));
+        // for path_point in path_point_list.iter() {
+        //     core.ekran.draw_line(path_point.0, path_point.1).unwrap();
+        // }
+
+        if !path_point_list.is_empty() {
+            core.ekran.set_draw_color((255, 255, 255));
+            for i in 0..path_point_list.len() - 1 {
+                    core.ekran.draw_line(path_point_list[i], path_point_list[i+1]).unwrap();
+
             }
         }
 
