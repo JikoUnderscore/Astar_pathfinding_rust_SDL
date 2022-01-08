@@ -85,6 +85,8 @@ impl FpsCapDeltaTime {
     }
 }
 
+
+// TODO: change from Vec of struct to struct of Vec
 struct SNode<'node> {
     obstacle: bool,
     visited: bool,
@@ -158,9 +160,9 @@ fn solve_astar<'a>(node_start_mut_ptr: *mut SNode<'a>, node_end: *const SNode<'a
 
 /// https://www.youtube.com/watch?v=icZj67PTFhc&list=WL&index=4&t=526s
 fn main() {
-    const MAP_WIDHT: usize = 20;
-    const MAP_HEIGHT: usize = 20;
-    const START_OFFSET: i32 = 1;
+    const MAP_WIDHT: usize = 50;
+    const MAP_HEIGHT: usize = 15;
+    const START_OFFSET: i32 = 0;
 
     let mut core = Renderer::new("a start pathing");
 
@@ -170,11 +172,21 @@ fn main() {
 
     let mut list_rects = vec![];
     let mut nodes_list = vec![];
+    // let mut node_list2: Vec<Vec<SNode>> = (0..MAP_HEIGHT).map(|_| Vec::new()).collect();
 
 
     for x in START_OFFSET..MAP_WIDHT as i32 + START_OFFSET {
         for y in START_OFFSET..MAP_HEIGHT as i32 + START_OFFSET {
-            let pos_rect = Rect::new(x * 30, y * 30, 20, 20);
+            let pos_rect = Rect::new(x * 20, y * 20, 15, 15);
+            // node_list2[y as usize].push(SNode {
+            //     obstacle: false,
+            //     visited: false,
+            //     global_goal: f64::INFINITY,
+            //     local_goal: f64::INFINITY,
+            //     point: pos_rect.center(),
+            //     neighbours: vec![],
+            //     parent: None
+            // });
             list_rects.push(pos_rect);
             nodes_list.push(SNode {
                 obstacle: false,
@@ -184,33 +196,71 @@ fn main() {
                 point: pos_rect.center(),
                 neighbours: vec![],
                 parent: None
-            })
+            });
         }
     }
     {
         let node_list_ptr: *mut _ = &mut nodes_list;
+        // let node_list2_ptr: *mut _ = &mut node_list2;
 
-        for x in 0..MAP_WIDHT {
-            for y in 0..MAP_HEIGHT {
+        // for n in 0..MAP_WIDHT * MAP_HEIGHT{
+            unsafe {
+                let x = 9;
+                let y = 9;
+
+
+                // if y > 0  {
+                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_HEIGHT + (x + 0)]);
+                // }
+                // if y < MAP_HEIGHT - 1 {
+                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_HEIGHT + (x + 0)]);
+                // }
+                // if x > 0 {
+                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x - 1)]);
+                // }
+                // if x < MAP_WIDHT - 1 {
+                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x + 1)]);
+                // }
+
+                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n - 1) * MAP_HEIGHT + (n + 0)]);
+                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 1) * MAP_HEIGHT + (n + 0)]);            // RIGHT
+                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 0) * MAP_HEIGHT + (n - 1)]);
+                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 0) * MAP_HEIGHT + (n + 1)]);            // DOWN
+            }
+        // }
+
+
+        for x in 0..MAP_WIDHT.max(MAP_HEIGHT) {
+            for y in 0..MAP_HEIGHT.max(MAP_WIDHT) {
                 unsafe {
-                    if y > 0 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_WIDHT + (x + 0)]);
+
+
+                    if y > 0 && y * MAP_HEIGHT + x < nodes_list.len()  {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_HEIGHT + (x + 0)]);
                     }
-                    if y < MAP_HEIGHT - 1 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_WIDHT + (x + 0)]);
+
+                    if y < MAP_HEIGHT.max(MAP_WIDHT) - 1 && (y + 1) * MAP_HEIGHT + (x + 0)< nodes_list.len()  {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_HEIGHT + (x + 0)]);
                     }
-                    if x > 0 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_WIDHT + (x - 1)]);
+
+                    if x > 0 && x < MAP_HEIGHT && y * MAP_HEIGHT + x < nodes_list.len()  {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x - 1)]);
                     }
-                    if x < MAP_WIDHT - 1 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_WIDHT + (x + 1)]);
+
+
+                    let map_w_h = if MAP_WIDHT > MAP_HEIGHT{  (MAP_WIDHT, MAP_HEIGHT) } else { ( MAP_HEIGHT,MAP_HEIGHT)};
+                    if x < map_w_h.0 - 1 && x < map_w_h.1 - 1 && (y + 0) * MAP_HEIGHT + (x + 1) < nodes_list.len(){
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x + 1)]);
                     }
                 }
             }
         }
+
     }
-    let mut node_start_mut_ptr: *mut _ = &mut nodes_list[2 * MAP_WIDHT + 10];
-    let mut node_end_ptr: *const _ = &nodes_list[17 * MAP_WIDHT + 10];
+
+
+    let mut node_start_mut_ptr: *mut _ = &mut nodes_list[0];
+    let mut node_end_ptr: *const _ = &nodes_list[9];
 
     let mut is_running = true;
     let mut path_point_list = vec![];
@@ -274,9 +324,7 @@ fn main() {
                                     p = (*pa).parent;
                                 }
                             }
-
                         },
-
 
                         _ => {},
                     }
@@ -303,27 +351,27 @@ fn main() {
                 core.ekran.set_draw_color((0, 0, 255));
             } else if anode.visited {
                 core.ekran.set_draw_color((125, 0, 0));
-            }else {
+            } else {
                 core.ekran.set_draw_color((255, 0, 0));
             }
             core.ekran.fill_rect(*rect).unwrap();
         }
-/*
-        {
-            let mut p: _ = Some(node_end_ptr);
-            core.ekran.set_draw_color((255, 255, 255));
+        /*
+                {
+                    let mut p: _ = Some(node_end_ptr);
+                    core.ekran.set_draw_color((255, 255, 255));
 
-            while let Some(pa) = p {
-                unsafe {
-                    if let Some(papa) = (*pa).parent {
-                        core.ekran.draw_line((*pa).point, (*papa).point).unwrap();
+                    while let Some(pa) = p {
+                        unsafe {
+                            if let Some(papa) = (*pa).parent {
+                                core.ekran.draw_line((*pa).point, (*papa).point).unwrap();
+                            }
+
+                            p = (*pa).parent;
+                        }
                     }
-
-                    p = (*pa).parent;
                 }
-            }
-        }
-*/
+        */
         // core.ekran.set_draw_color((255, 255, 255));
         // for path_point in path_point_list.iter() {
         //     core.ekran.draw_line(path_point.0, path_point.1).unwrap();
@@ -332,8 +380,7 @@ fn main() {
         if !path_point_list.is_empty() {
             core.ekran.set_draw_color((255, 255, 255));
             for i in 0..path_point_list.len() - 1 {
-                    core.ekran.draw_line(path_point_list[i], path_point_list[i+1]).unwrap();
-
+                core.ekran.draw_line(path_point_list[i], path_point_list[i + 1]).unwrap();
             }
         }
 
