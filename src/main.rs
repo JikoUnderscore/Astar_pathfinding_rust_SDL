@@ -31,7 +31,7 @@ impl Renderer {
 
         // get the canvas
         let mut ekran = window.into_canvas().build().unwrap();
-        ekran.set_logical_size(1280, 720).unwrap();
+        // ekran.set_logical_size(1280, 720).unwrap();
 
 
         Renderer {
@@ -157,11 +157,11 @@ fn solve_astar<'a>(node_start_mut_ptr: *mut SNode<'a>, node_end: *const SNode<'a
 }
 
 
-/// https://www.youtube.com/watch?v=icZj67PTFhc&list=WL&index=4&t=526s
+/// https://www.youtube.com/watch?v=icZj67PTFhc
 fn main() {
-    const MAP_WIDHT: usize = 20;
-    const MAP_HEIGHT: usize = 20;
-    const START_OFFSET: i32 = 1;
+    const MAP_WIDHT: usize = 15;
+    const MAP_HEIGHT: usize = 50;
+    const START_OFFSET: i32 = 0;
 
     let mut core = Renderer::new("a start pathing");
 
@@ -175,7 +175,7 @@ fn main() {
 
     for x in START_OFFSET..MAP_WIDHT as i32 + START_OFFSET {
         for y in START_OFFSET..MAP_HEIGHT as i32 + START_OFFSET {
-            let pos_rect = Rect::new(x * 30, y * 30, 20, 20);
+            let pos_rect = Rect::new(x * 20, y * 20, 10, 10);
             list_rects.push(pos_rect);
             nodes_list.push(SNode {
                 obstacle: false,
@@ -191,27 +191,32 @@ fn main() {
     {
         let node_list_ptr: *mut _ = &mut nodes_list;
 
-        for x in 0..MAP_WIDHT {
-            for y in 0..MAP_HEIGHT {
+        for x in 0..MAP_WIDHT.max(MAP_HEIGHT) {
+            for y in 0..MAP_HEIGHT.max(MAP_WIDHT) {
                 unsafe {
-                    if y > 0 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_WIDHT + (x + 0)]);
+                    if y > 0 && y * MAP_HEIGHT + x < nodes_list.len() {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_HEIGHT + (x + 0)]);
                     }
-                    if y < MAP_HEIGHT - 1 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_WIDHT + (x + 0)]);
+
+                    if y < MAP_HEIGHT.max(MAP_WIDHT) - 1 && (y + 1) * MAP_HEIGHT + (x + 0) < nodes_list.len() {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_HEIGHT + (x + 0)]);
                     }
-                    if x > 0 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_WIDHT + (x - 1)]);
+
+                    if x > 0 && x < MAP_HEIGHT && y * MAP_HEIGHT + x < nodes_list.len() {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x - 1)]);
                     }
-                    if x < MAP_WIDHT - 1 {
-                        nodes_list[y * MAP_WIDHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_WIDHT + (x + 1)]);
+
+                    let map_w_h = if MAP_WIDHT > MAP_HEIGHT { (MAP_WIDHT, MAP_HEIGHT) } else { (MAP_HEIGHT, MAP_HEIGHT) };
+                    if x < map_w_h.0 - 1 && x < map_w_h.1 - 1 && (y + 0) * MAP_HEIGHT + (x + 1) < nodes_list.len() {
+                        nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x + 1)]);
                     }
                 }
             }
         }
     }
-    let mut node_start_mut_ptr: *mut _ = &mut nodes_list[2 * MAP_WIDHT + 10];
-    let mut node_end_ptr: *const _ = &nodes_list[17 * MAP_WIDHT + 10];
+
+    let mut node_start_mut_ptr: *mut _ = &mut nodes_list[0];
+    let mut node_end_ptr: *const _ = &nodes_list[nodes_list.len() - 1];
 
     let mut is_running = true;
 
