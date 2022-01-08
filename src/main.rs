@@ -161,7 +161,7 @@ fn solve_astar<'a>(node_start_mut_ptr: *mut SNode<'a>, node_end: *const SNode<'a
 /// https://www.youtube.com/watch?v=icZj67PTFhc&list=WL&index=4&t=526s
 fn main() {
     const MAP_WIDHT: usize = 50;
-    const MAP_HEIGHT: usize = 15;
+    const MAP_HEIGHT: usize = 20;
     const START_OFFSET: i32 = 0;
 
     let mut core = Renderer::new("a start pathing");
@@ -201,34 +201,6 @@ fn main() {
     }
     {
         let node_list_ptr: *mut _ = &mut nodes_list;
-        // let node_list2_ptr: *mut _ = &mut node_list2;
-
-        // for n in 0..MAP_WIDHT * MAP_HEIGHT{
-            unsafe {
-                let x = 9;
-                let y = 9;
-
-
-                // if y > 0  {
-                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y - 1) * MAP_HEIGHT + (x + 0)]);
-                // }
-                // if y < MAP_HEIGHT - 1 {
-                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 1) * MAP_HEIGHT + (x + 0)]);
-                // }
-                // if x > 0 {
-                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x - 1)]);
-                // }
-                // if x < MAP_WIDHT - 1 {
-                //     nodes_list[y * MAP_HEIGHT + x].neighbours.push(&mut (*node_list_ptr)[(y + 0) * MAP_HEIGHT + (x + 1)]);
-                // }
-
-                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n - 1) * MAP_HEIGHT + (n + 0)]);
-                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 1) * MAP_HEIGHT + (n + 0)]);            // RIGHT
-                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 0) * MAP_HEIGHT + (n - 1)]);
-                // nodes_list[n * MAP_HEIGHT + n].neighbours.push(&mut (*node_list_ptr)[(n + 0) * MAP_HEIGHT + (n + 1)]);            // DOWN
-            }
-        // }
-
 
         for x in 0..MAP_WIDHT.max(MAP_HEIGHT) {
             for y in 0..MAP_HEIGHT.max(MAP_WIDHT) {
