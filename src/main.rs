@@ -29,8 +29,8 @@ impl Renderer {
 
 
         // get the canvas
-        let mut ekran = window.into_canvas().build().unwrap();
-        ekran.set_logical_size(1280, 720).unwrap();
+        let ekran = window.into_canvas().build().unwrap();
+        // ekran.set_logical_size(1280, 720).unwrap();
 
 
         Renderer {
